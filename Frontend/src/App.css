@@ -1,0 +1,21 @@
+/* === App-level Layout === */
+
+/* Smooth page transitions */
+.app-layout {
+  animation: fadeIn 0.3s var(--ease-out);
+}
+
+/* Canvas container */
+.body-model-container {
+  position: relative;
+}
+
+.body-model-container canvas {
+  border-radius: var(--radius-lg);
+}
+
+/* Selection override */
+::selection {
+  background: rgba(143, 245, 255, 0.2);
+  color: var(--color-on-surface);
+}

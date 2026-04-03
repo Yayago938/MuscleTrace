@@ -1,0 +1,156 @@
+/* === Analytics Page === */
+
+.analytics-chart-card {
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.chart-header h3 {
+  font-size: 1.15rem;
+}
+
+.line-chart-wrap {
+  height: 320px;
+}
+
+/* --- Heatmap Comparison --- */
+.heatmap-compare {
+  margin-bottom: var(--space-6);
+}
+
+.heatmap-compare > h3 {
+  font-size: 1.15rem;
+  margin-bottom: var(--space-4);
+}
+
+.heatmap-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.heatmap-compare-item {
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.heatmap-compare-item .label {
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+/* --- Volume Balance --- */
+.volume-section {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.volume-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: var(--space-1);
+}
+
+.volume-subtitle {
+  font-size: var(--font-body-md);
+  color: var(--color-on-surface-variant);
+  margin-bottom: var(--space-5);
+}
+
+.volume-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.volume-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.volume-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-label-md);
+  color: var(--color-on-surface-variant);
+  font-weight: 500;
+}
+
+.volume-bar-pct {
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.volume-bar-track {
+  height: 6px;
+  background: var(--color-surface-container-high);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.volume-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 1s var(--ease-out);
+}
+
+/* --- Insights --- */
+.insights-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.analytics-insight {
+  padding: var(--space-4);
+}
+
+.analytics-insight.insight-warn {
+  border: 1px solid rgba(255, 113, 98, 0.15);
+  background: rgba(255, 113, 98, 0.03);
+}
+
+.analytics-insight.insight-info {
+  border: 1px solid rgba(143, 245, 255, 0.15);
+  background: rgba(143, 245, 255, 0.03);
+}
+
+.insight-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.insight-header h4 {
+  font-size: var(--font-body-lg);
+}
+
+.analytics-insight p {
+  font-size: var(--font-body-md);
+  color: var(--color-on-surface-variant);
+  line-height: 1.6;
+}
+
+.analytics-insight p strong {
+  color: var(--color-on-surface);
+}
+
+/* --- Responsive --- */
+@media (max-width: 1000px) {
+  .heatmap-compare-grid {
+    grid-template-columns: 1fr;
+  }
+  .volume-section {
+    grid-template-columns: 1fr;
+  }
+}
