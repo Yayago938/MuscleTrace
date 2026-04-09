@@ -1,24 +1,23 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+
 }
+
 model User {
   id        String   @id @default(uuid())
+  name      String?
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   workouts  Workout[]
- friends   Friend[] @relation("UserFriends")
-friendOf  Friend[] @relation("FriendRelation")
+  friends   Friend[] @relation("UserFriends")
+  friendOf  Friend[] @relation("FriendRelation")
 }
 
 model Workout {
@@ -26,9 +25,12 @@ model Workout {
   userId    String
   date      DateTime @default(now())
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   exercises Exercise[]
+
+  @@index([userId])
 }
 
 model Exercise {
@@ -38,11 +40,12 @@ model Exercise {
   sets       Int
   reps       Int
   weight     Float
+  muscleGroup String
+  muscleName  String
 
-  muscleGroup String   // chest, back, legs, etc
-  muscleName  String   // biceps, triceps, etc (for 3D mapping)
+  workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
-  workout Workout @relation(fields: [workoutId], references: [id])
+  @@index([workoutId])
 }
 
 model Friend {
@@ -50,6 +53,8 @@ model Friend {
   userId    String
   friendId  String
 
- user      User @relation("UserFriends", fields: [userId], references: [id])
-  friend    User @relation("FriendRelation", fields: [friendId], references: [id])
+  user   User @relation("UserFriends", fields: [userId], references: [id])
+  friend User @relation("FriendRelation", fields: [friendId], references: [id])
+
+  @@unique([userId, friendId])
 }

@@ -2,7 +2,7 @@ const prisma=require("../utils/prisma");
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken");
 require("dotenv/config");
-export const register= async (req,res)=>{
+ const register= async (req,res)=>{
     try{
         const {name,email,password}=req.body;
         const hashedpassword= await bcrypt.hash(password, 10);
@@ -20,7 +20,7 @@ export const register= async (req,res)=>{
     
 }
 
-export const login=async(req,res)=>{
+const login=async(req,res)=>{
     try{
         const {email,password}=req.body;
         const user= await prisma.user.findUnique({
@@ -35,3 +35,5 @@ export const login=async(req,res)=>{
         res.status(500).json({error:err.message})
     }
 }
+
+module.exports={register,login}

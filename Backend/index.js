@@ -5,11 +5,16 @@ const port=5000;
 const app=express();
 const authroutes=require('./routes/authroutes')
 const authmiddleware=require('./middlewares/authmiddleware'); 
+const workoutRoutes=require('./routes/workoutroutes');
+const exerciseRoutes=require('./routes/exerciseroutes');
+const progressRoutes=require('./routes/progressroutes');
 
-app.use('/api/auth',authroutes);
-app.use(cors());
 app.use(express.json());
-app.use(authmiddleware);
+app.use(cors());
+app.use('/api/auth',authroutes);
+app.use("/workouts", workoutRoutes)
+app.use("/exercises", exerciseRoutes)
+app.use("/progress", progressRoutes) 
 
 app.get('/',(req,res)=>{
     res.send('Running');
