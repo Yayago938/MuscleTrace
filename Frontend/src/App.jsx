@@ -1,27 +1,23 @@
-import { Routes, Route } from 'react-router-dom'
-import LandingPage from './pages/LandingPage'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import Dashboard from './pages/Dashboard'
-import Analytics from './pages/Analytics'
-import LogWorkout from './pages/LogWorkout'
-import Community from './pages/Community'
-import './App.css'
+import { Navigate, Route, Routes } from "react-router-dom";
+import { AnalyticsPage } from "./pages/AnalyticsPage";
+import { CommunityPage } from "./pages/CommunityPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { LandingPage } from "./pages/LandingPage";
+import { LoginPage } from "./pages/LoginPage";
+import { SignupPage } from "./pages/SignupPage";
+import { WorkoutPage } from "./pages/WorkoutPage";
 
-function App() {
+export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/analytics" element={<Analytics />} />
-      <Route path="/workouts" element={<LogWorkout />} />
-      <Route path="/community" element={<Community />} />
-      {/* Fallback routes for sidebar links */}
-      <Route path="/profile" element={<Dashboard />} />
+      <Route element={<LandingPage />} path="/" />
+      <Route element={<LoginPage />} path="/login" />
+      <Route element={<SignupPage />} path="/signup" />
+      <Route element={<DashboardPage />} path="/dashboard" />
+      <Route element={<AnalyticsPage />} path="/analytics" />
+      <Route element={<CommunityPage />} path="/community" />
+      <Route element={<WorkoutPage />} path="/workout" />
+      <Route element={<Navigate replace to="/" />} path="*" />
     </Routes>
-  )
+  );
 }
-
-export default App

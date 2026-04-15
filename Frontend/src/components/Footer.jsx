@@ -1,18 +1,23 @@
-import { Link } from 'react-router-dom'
-import './Footer.css'
+import { footerLinks } from "../data/siteData";
 
-export default function Footer() {
+export function Footer() {
   return (
-    <footer className="site-footer" id="site-footer">
-      <div className="footer-content">
-        <span className="footer-copy">© 2024 MuscleTrace. Kinetic Precision.</span>
-        <div className="footer-links">
-          <Link to="/privacy">Privacy</Link>
-          <Link to="/terms">Terms</Link>
-          <Link to="/support">Support</Link>
-          <Link to="/contact">Contact</Link>
+    <footer className="border-t border-outline-variant/20 bg-surface px-6 py-10 md:px-12">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="font-headline text-xl font-semibold italic">MuscleTrace</p>
+          <p className="mt-2 text-xs uppercase tracking-[0.22em] text-on-surface-variant">
+            © 2026 MuscleTrace. The Digital Atelier for Human Performance.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-6 text-xs uppercase tracking-[0.2em] text-on-surface-variant">
+          {footerLinks.map((item) => (
+            <button className="transition hover:text-primary" key={item} type="button">
+              {item}
+            </button>
+          ))}
         </div>
       </div>
     </footer>
-  )
+  );
 }
