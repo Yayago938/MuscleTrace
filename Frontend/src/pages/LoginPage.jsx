@@ -1,13 +1,31 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../api/authService";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+const [error, setError] = useState("");
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    navigate("/dashboard");
+    setLoading(true);
+    setError("");
+    try{
+      const res=await loginUser(form);
+      console.log(res.data);
+      localStorage.setItem("token",res.data.token);
+      navigate("/dashboard");
+    }catch(err){
+      const serverMessage = err.response?.data?.message;
+    const fallbackMessage = "Invalid email or password. Please try again.";
+    console.error("Login Error:", serverMessage || err.message); 
+    setError(serverMessage || fallbackMessage);
+    } finally {
+  setLoading(false);
+}
+    
   }
 
   return (

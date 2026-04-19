@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../api/authService";
 
 const goals = [
   "Hypertrophy & Aesthetics",
@@ -21,9 +22,16 @@ export function SignupPage() {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    navigate("/dashboard");
+    try {
+      const res=await registerUser(form);
+      console.log(res.data);
+      localStorage.setItem("token",res.data.token);
+      navigate("/login");
+    } catch (err) {
+      console.error("Signup Error:", err.response?.data || err.message);
+    }
   }
 
   return (
