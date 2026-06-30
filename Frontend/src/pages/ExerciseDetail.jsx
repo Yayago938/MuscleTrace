@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import Sidebar from '../components/layout/sidebar'
+import Sidebar from '../components/layout/Sidebar'
 import MusclePreview from '../components/explorer/MusclePreview'
 import InfoChip from '../components/explorer/InfoChip'
 import { getExerciseById } from '../api/exerciseapi'

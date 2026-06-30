@@ -1,4 +1,4 @@
-import Sidebar from '../components/layout/sidebar'
+import Sidebar from '../components/layout/Sidebar'
 import Header from '../components/dashboard/Header'
 import TodaySessionCard from '../components/dashboard/TodaySessionCard'
 import StreakCard from '../components/dashboard/StreakCard'

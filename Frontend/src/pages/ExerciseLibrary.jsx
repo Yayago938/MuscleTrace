@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import Sidebar from '../components/layout/sidebar'
+import Sidebar from '../components/layout/Sidebar'
 import ExerciseCard from '../components/explorer/ExerciseCard'
 import ExerciseCardSkeleton from '../components/explorer/ExerciseCardSkeleton'
 import FilterDropdown from '../components/explorer/FilterDropdown'
