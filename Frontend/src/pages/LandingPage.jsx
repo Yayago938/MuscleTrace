@@ -20,7 +20,7 @@ export function LandingPage() {
               <NavLink className="ember-button justify-center text-center" to="/signup">
                 Start Session
               </NavLink>
-              <NavLink className="rounded-full bg-surface-container-highest px-8 py-4 text-center text-xs font-bold uppercase tracking-[0.2em] transition hover:bg-surface-variant" to="/analytics">
+              <NavLink className="rounded-full bg-surface-container-highest px-8 py-4 text-center text-xs font-bold uppercase tracking-[0.2em] transition hover:bg-surface-variant" to="/history">
                 Explore Heatmaps
               </NavLink>
             </div>
@@ -123,3 +123,4 @@ export function LandingPage() {
     </PublicLayout>
   );
 }
+

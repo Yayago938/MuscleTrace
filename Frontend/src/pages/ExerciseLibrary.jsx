@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import Sidebar from '../components/layout/Sidebar'
+import { useNavigate } from 'react-router-dom'
 import ExerciseCard from '../components/explorer/ExerciseCard'
 import ExerciseCardSkeleton from '../components/explorer/ExerciseCardSkeleton'
 import FilterDropdown from '../components/explorer/FilterDropdown'
+import { addExerciseToWorkout } from '../api/exerciseService'
+import { createWorkout } from '../api/workoutService'
+import { useWorkouts } from '../context/WorkoutContext'
 import {
   getExercises,
   getExercisesByBodyParts,
@@ -16,10 +19,28 @@ const EQUIPMENTS = ['all gear', 'barbell', 'dumbbell', 'body weight', 'cable', '
 
 const PAGE_SIZE = 12
 
+function getErrorMessage(error) {
+  const status = error?.response?.status
+  const backendMessage = error?.response?.data?.message || error?.response?.data?.error
+
+  if (backendMessage) return backendMessage
+  if (status === 401) return 'Your session has expired. Please log in again.'
+  if (status === 403) return 'You are not allowed to create this workout.'
+  if (status === 404) return 'The workout endpoint could not be found.'
+  if (status === 422) return 'Please check the workout details and try again.'
+  if (status >= 500) return 'The server could not create the workout right now.'
+
+  return error?.message || 'Unable to create workout. Please try again.'
+}
+
 export default function ExerciseLibrary() {
+  const navigate = useNavigate()
+  const { currentWorkoutExercises, clearCurrentWorkout, refreshWorkouts } = useWorkouts()
   const [exercises, setExercises] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [creatingWorkout, setCreatingWorkout] = useState(false)
+  const [createMessage, setCreateMessage] = useState(null)
 
   const [search, setSearch] = useState('')
   const [bodyPart, setBodyPart] = useState(BODY_PARTS[0])
@@ -76,13 +97,54 @@ export default function ExerciseLibrary() {
     }
   }, [debouncedSearch, bodyPart, targetMuscle, equipment])
 
+  async function handleCreateWorkout() {
+    if (creatingWorkout) return
+
+    if (currentWorkoutExercises.length === 0) {
+      setCreateMessage({ type: 'error', text: 'Add at least one exercise before creating a workout.' })
+      return
+    }
+
+    setCreatingWorkout(true)
+    setCreateMessage(null)
+
+    try {
+      const workoutResponse = await createWorkout()
+      const workout = workoutResponse?.data
+
+      if (!workout?.id) {
+        throw new Error('Workout was created without an id.')
+      }
+
+      await Promise.all(
+        currentWorkoutExercises.map((exercise) =>
+          addExerciseToWorkout({
+            workoutId: workout.id,
+            name: exercise.name,
+            sets: exercise.sets,
+            reps: exercise.reps,
+            weight: exercise.weight,
+            muscleGroup: exercise.muscleGroup,
+            muscleName: exercise.muscleName,
+          })
+        )
+      )
+
+      setCreateMessage({ type: 'success', text: 'Workout Created Successfully' })
+      clearCurrentWorkout()
+      await refreshWorkouts()
+      window.setTimeout(() => navigate('/workouts'), 700)
+    } catch (err) {
+      setCreateMessage({ type: 'error', text: getErrorMessage(err) })
+    } finally {
+      setCreatingWorkout(false)
+    }
+  }
+
   const skeletons = useMemo(() => Array.from({ length: 8 }), [])
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-
-      <main className="flex-1 px-8 py-8 max-w-6xl relative">
+    <main className="flex-1 px-8 py-8 max-w-6xl relative">
         <div className="absolute inset-x-0 top-0 h-64 bg-haze pointer-events-none" />
 
         <div className="relative">
@@ -97,19 +159,30 @@ export default function ExerciseLibrary() {
               </p>
             </div>
 
-            <div className="relative shrink-0 hidden sm:block">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2
-                text-on-surface-variant text-[18px]">
-                search
-              </span>
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search exercises..."
-                className="w-72 bg-surface-container-low rounded-full pl-10 pr-4 py-2.5 text-sm
-                  placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
-              />
+            <div className="flex shrink-0 flex-col items-end gap-3">
+              <div className="relative hidden sm:block">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2
+                  text-on-surface-variant text-[18px]">
+                  search
+                </span>
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search exercises..."
+                  className="w-72 bg-surface-container-low rounded-full pl-10 pr-4 py-2.5 text-sm
+                    placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary-container"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCreateWorkout}
+                disabled={creatingWorkout || currentWorkoutExercises.length === 0}
+                className="ember-button justify-center normal-case tracking-normal text-sm disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {creatingWorkout ? 'Creating...' : `Create Workout (${currentWorkoutExercises.length})`}
+              </button>
             </div>
           </div>
 
@@ -145,6 +218,19 @@ export default function ExerciseLibrary() {
             </button>
           </div>
 
+          {createMessage && (
+            <div
+              role="status"
+              className={`mb-6 rounded-editorial px-4 py-3 text-sm font-semibold ${
+                createMessage.type === 'success'
+                  ? 'bg-primary-container text-on-surface'
+                  : 'bg-secondary/10 text-secondary'
+              }`}
+            >
+              {createMessage.text}
+            </div>
+          )}
+
           {error && (
             <p className="text-secondary text-sm mb-6">
               Couldn't load exercises right now. {error}
@@ -165,7 +251,6 @@ export default function ExerciseLibrary() {
             </p>
           )}
         </div>
-      </main>
-    </div>
+    </main>
   )
 }

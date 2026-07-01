@@ -1,13 +1,14 @@
 export const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: "dashboard" },
-  { label: "Workouts", path: "/workout", icon: "fitness_center" },
-  { label: "Community", path: "/community", icon: "groups" },
-  { label: "Analytics", path: "/analytics", icon: "insights" },
+  { label: "Exercises", path: "/exercises", icon: "explore" },
+  { label: "Workouts", path: "/workouts", icon: "fitness_center" },
+  { label: "Friends", path: "/friends", icon: "groups" },
+  { label: "Settings", path: "/settings", icon: "settings" },
 ];
 
 export const topLinks = [
-  { label: "Training", path: "/workout" },
-  { label: "Anatomy", path: "/analytics" },
+  { label: "Training", path: "/workouts" },
+  { label: "Anatomy", path: "/exercises" },
   { label: "Progress", path: "/dashboard" },
 ];
 
@@ -35,16 +36,16 @@ export const landingFeatures = [
 ];
 
 export const sessions = [
-  { title: "Hypertrophy: Lower Body", date: "24 OCT", type: "Strength", progress: 85, meta: "62 min • 14,200kg volume" },
-  { title: "Anatomical Mobility", date: "22 OCT", type: "Recovery", progress: 100, meta: "45 min • Full body focus" },
-  { title: "Power Projection", date: "21 OCT", type: "Peak", progress: 92, meta: "30 min • High intensity" },
+  { title: "Hypertrophy: Lower Body", date: "24 OCT", type: "Strength", progress: 85, meta: "62 min - 14,200kg volume" },
+  { title: "Anatomical Mobility", date: "22 OCT", type: "Recovery", progress: 100, meta: "45 min - Full body focus" },
+  { title: "Power Projection", date: "21 OCT", type: "Peak", progress: 92, meta: "30 min - High intensity" },
 ];
 
 export const weeklyLoad = [40, 60, 85, 55, 100, 70, 45];
 
 export const analyticsMetrics = [
   { label: "Velocity", value: "0.82", unit: "m/s", tone: "text-primary", note: "Dynamic Strength Zone", icon: "speed" },
-  { label: "Metabolic Heat", value: "101.4", unit: "°F", tone: "text-secondary", note: "Elevated Baseline", icon: "thermostat" },
+  { label: "Metabolic Heat", value: "101.4", unit: "F", tone: "text-secondary", note: "Elevated Baseline", icon: "thermostat" },
   { label: "Time Under Tension", value: "42:18", unit: "min", tone: "text-on-surface", note: "Session Cumulative", icon: "timer" },
 ];
 
@@ -59,9 +60,4 @@ export const activityFeed = [
   "Marcus A. crushed a Chest Sculpture workout.",
   "Elena R. achieved 100 Day Streak status!",
   "Leo D. shared a new Leg Day Masterpiece.",
-];
-
-export const defaultWorkout = [
-  { id: 1, set: 1, weight: 80, reps: 8, rpe: "8.5", done: true },
-  { id: 2, set: 2, weight: "", reps: "", rpe: "-", done: false },
 ];

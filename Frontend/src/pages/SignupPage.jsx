@@ -9,28 +9,83 @@ const goals = [
   "Functional Strength",
 ];
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function getAuthErrorMessage(error, fallbackMessage) {
+  const status = error?.response?.status;
+  const backendMessage = error?.response?.data?.message || error?.response?.data?.error;
+
+  if (backendMessage) return backendMessage;
+  if (status === 400 || status === 422) return "Please check your details and try again.";
+  if (status === 401) return "Please log in to continue.";
+  if (status === 403) return "You do not have permission to create this account.";
+  if (status === 404) return "The signup endpoint could not be found.";
+  if (status === 409) return "An account with this email already exists.";
+  if (status >= 500) return "The server is having trouble. Please try again later.";
+
+  return fallbackMessage;
+}
+
 export function SignupPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
     goal: goals[0],
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
+    setError("");
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (loading) return;
+
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const password = form.password;
+
+    if (!name || !email || !password || !form.confirmPassword) {
+      setError("Name, email, password, and confirm password are required.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Enter a valid email address.");
+      return;
+    }
+
+    if (password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
     try {
-      const res=await registerUser(form);
-      console.log(res.data);
-      localStorage.setItem("token",res.data.token);
-      navigate("/login");
+      const res = await registerUser({ name, email, password });
+      const token = res.data?.token;
+
+      if (token) {
+        localStorage.setItem("token", token);
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      navigate("/login", { replace: true });
     } catch (err) {
-      console.error("Signup Error:", err.response?.data || err.message);
+      setError(getAuthErrorMessage(err, "Unable to create your account. Please try again."));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -54,15 +109,19 @@ export function SignupPage() {
           <form className="mt-10 space-y-5" onSubmit={handleSubmit}>
             <label className="block">
               <span className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Full Name</span>
-              <input className="mt-3 w-full rounded-[1.5rem] bg-surface-container-low px-5 py-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-primary/15" onChange={(event) => updateField("name", event.target.value)} value={form.name} />
+              <input className="mt-3 w-full rounded-[1.5rem] bg-surface-container-low px-5 py-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-primary/15" onChange={(event) => updateField("name", event.target.value)} required value={form.name} />
             </label>
             <label className="block">
               <span className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Email Address</span>
-              <input className="mt-3 w-full rounded-[1.5rem] bg-surface-container-low px-5 py-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-primary/15" onChange={(event) => updateField("email", event.target.value)} type="email" value={form.email} />
+              <input className="mt-3 w-full rounded-[1.5rem] bg-surface-container-low px-5 py-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-primary/15" onChange={(event) => updateField("email", event.target.value)} required type="email" value={form.email} />
             </label>
             <label className="block">
               <span className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Password</span>
-              <input className="mt-3 w-full rounded-[1.5rem] bg-surface-container-low px-5 py-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-primary/15" onChange={(event) => updateField("password", event.target.value)} type="password" value={form.password} />
+              <input className="mt-3 w-full rounded-[1.5rem] bg-surface-container-low px-5 py-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-primary/15" onChange={(event) => updateField("password", event.target.value)} required type="password" value={form.password} />
+            </label>
+            <label className="block">
+              <span className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Confirm Password</span>
+              <input className="mt-3 w-full rounded-[1.5rem] bg-surface-container-low px-5 py-4 outline-none transition focus:bg-white focus:ring-2 focus:ring-primary/15" onChange={(event) => updateField("confirmPassword", event.target.value)} required type="password" value={form.confirmPassword} />
             </label>
             <label className="block">
               <span className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Fitness Goals</span>
@@ -72,8 +131,15 @@ export function SignupPage() {
                 ))}
               </select>
             </label>
-            <button className="ember-button mt-2 w-full justify-center" type="submit">
-              Begin Transformation
+
+            {error && (
+              <p className="rounded-[1.5rem] bg-secondary/10 px-4 py-3 text-sm font-semibold text-secondary" role="alert">
+                {error}
+              </p>
+            )}
+
+            <button className="ember-button mt-2 w-full justify-center disabled:cursor-not-allowed disabled:opacity-60" disabled={loading} type="submit">
+              {loading ? "Creating Account..." : "Begin Transformation"}
             </button>
             <p className="text-center text-sm text-on-surface-variant">
               Already have an account?{" "}
