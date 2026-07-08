@@ -3,7 +3,8 @@ const prisma=require("../utils/prisma");
     try{
         const workout=await prisma.workout.create({
             data:{
-                userId:req.userId
+                userId:req.userId,
+                name: req.body.name
             }
         }
         )
