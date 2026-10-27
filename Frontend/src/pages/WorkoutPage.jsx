@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AppShell } from '../components/AppShell'
 import { formatWorkoutDate, getApiErrorMessage, getWorkoutDisplayName, useWorkouts } from '../context/WorkoutContext'
+import WorkoutExerciseDetailCard from '../components/workout/WorkoutExerciseDetailCard'
 
 export function WorkoutPage() {
   const location = useLocation()
@@ -99,35 +100,7 @@ export function WorkoutPage() {
 
         {exercises.length > 0 ? (
           <div className="space-y-4">
-            {exercises.map((exercise, index) => (
-              <section key={exercise.id} className="glass-panel rounded-editorial border border-white/50 p-6 shadow-ambient">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Movement {index + 1}</p>
-                    <h3 className="mt-1 font-headline text-2xl font-bold capitalize text-on-surface">{exercise.name}</h3>
-                    <p className="mt-2 text-sm text-on-surface-variant capitalize">
-                      {exercise.muscleName || exercise.muscleGroup}
-                    </p>
-                  </div>
-                  <span className="material-symbols-outlined text-on-surface-variant">fitness_center</span>
-                </div>
-
-                <div className="mt-6 grid grid-cols-3 gap-3">
-                  <div className="rounded-editorial bg-surface-container-low p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">Sets</p>
-                    <p className="font-headline text-2xl font-bold text-on-surface">{exercise.sets}</p>
-                  </div>
-                  <div className="rounded-editorial bg-surface-container-low p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">Reps</p>
-                    <p className="font-headline text-2xl font-bold text-on-surface">{exercise.reps}</p>
-                  </div>
-                  <div className="rounded-editorial bg-surface-container-low p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">Weight</p>
-                    <p className="font-headline text-2xl font-bold text-on-surface">{exercise.weight}</p>
-                  </div>
-                </div>
-              </section>
-            ))}
+            {exercises.map((exercise) => <WorkoutExerciseDetailCard exercise={exercise} key={exercise.id} />)}
           </div>
         ) : (
           <div className="rounded-editorial border-2 border-dashed border-outline-variant p-12 text-center text-on-surface-variant">
