@@ -30,3 +30,13 @@ Thumbs.db
 
 # Coverage
 coverage/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Frontend environment files
+Frontend/.env
+Frontend/.env.local
+Frontend/.env.production
