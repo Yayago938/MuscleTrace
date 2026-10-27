@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import CreateWorkoutModal from '../components/workout/CreateWorkoutModal'
 import {
   createWorkout as createWorkoutRequest,
@@ -57,6 +58,7 @@ export function normalizeExercisePayload(exercise) {
 }
 
 export function WorkoutProvider({ children }) {
+  const navigate = useNavigate()
   const [workouts, setWorkouts] = useState([])
   const [loadingWorkouts, setLoadingWorkouts] = useState(false)
   const [workoutsError, setWorkoutsError] = useState('')
@@ -95,14 +97,24 @@ export function WorkoutProvider({ children }) {
   }, [creatingWorkout])
 
   const createWorkout = useCallback(
-    async () => {
+    async (name) => {
+      const trimmedName = name?.trim()
+
+      if (!trimmedName) {
+        setCreateWorkoutError('Workout name is required.')
+        return null
+      }
+
       setCreatingWorkout(true)
       setCreateWorkoutError('')
 
       try {
-        const response = await createWorkoutRequest()
+        const response = await createWorkoutRequest({ name: trimmedName })
         await refreshWorkouts()
         setCreateModalOpen(false)
+        if (response.data?.id) {
+          navigate(`/workouts/${response.data.id}`)
+        }
         return response.data
       } catch (error) {
         setCreateWorkoutError(getApiErrorMessage(error, 'Unable to create workout.'))
@@ -111,7 +123,7 @@ export function WorkoutProvider({ children }) {
         setCreatingWorkout(false)
       }
     },
-    [refreshWorkouts]
+    [navigate, refreshWorkouts]
   )
 
   const deleteWorkout = useCallback(

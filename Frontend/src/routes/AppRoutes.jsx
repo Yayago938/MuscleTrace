@@ -13,7 +13,8 @@ import NotFound from "../pages/NotFound/NotFound";
 import SavedWorkouts from "../pages/SavedWorkouts";
 import { SignupPage } from "../pages/SignupPage";
 import { WorkoutPage } from "../pages/WorkoutPage";
-import { ProtectedRoute, PublicOnlyRoute } from "./ProtectedRoute";
+import { ProfileCompleteRoute, ProtectedRoute, PublicOnlyRoute } from "./ProtectedRoute";
+import { ProfileSetupPage } from "../pages/ProfileSetupPage";
 
 export default function AppRoutes() {
   return (
@@ -28,7 +29,9 @@ export default function AppRoutes() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route element={<DashboardLayout />}>
+        <Route element={<ProfileSetupPage />} path="/profile-setup" />
+        <Route element={<ProfileCompleteRoute />}>
+          <Route element={<DashboardLayout />}>
           <Route element={<Dashboard />} path="/dashboard" />
           <Route element={<ExerciseLibrary />} path="/exercises" />
           <Route element={<ExerciseDetail />} path="/exercises/:exerciseId" />
@@ -43,6 +46,7 @@ export default function AppRoutes() {
           <Route element={<Dashboard />} path="/profile/edit" />
           <Route element={<Dashboard />} path="/notifications" />
           <Route element={<Dashboard />} path="/settings" />
+          </Route>
         </Route>
       </Route>
 

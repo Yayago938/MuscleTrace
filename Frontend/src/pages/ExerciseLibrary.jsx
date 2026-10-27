@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ExerciseCard from '../components/explorer/ExerciseCard'
+import CreateWorkoutModal from '../components/workout/CreateWorkoutModal'
 import ExerciseCardSkeleton from '../components/explorer/ExerciseCardSkeleton'
 import FilterDropdown from '../components/explorer/FilterDropdown'
 import { addExerciseToWorkout } from '../api/exerciseService'
@@ -41,6 +42,7 @@ export default function ExerciseLibrary() {
   const [error, setError] = useState(null)
   const [creatingWorkout, setCreatingWorkout] = useState(false)
   const [createMessage, setCreateMessage] = useState(null)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const [search, setSearch] = useState('')
   const [bodyPart, setBodyPart] = useState(BODY_PARTS[0])
@@ -97,7 +99,7 @@ export default function ExerciseLibrary() {
     }
   }, [debouncedSearch, bodyPart, targetMuscle, equipment])
 
-  async function handleCreateWorkout() {
+  async function handleCreateWorkout(name) {
     if (creatingWorkout) return
 
     if (currentWorkoutExercises.length === 0) {
@@ -109,7 +111,7 @@ export default function ExerciseLibrary() {
     setCreateMessage(null)
 
     try {
-      const workoutResponse = await createWorkout()
+      const workoutResponse = await createWorkout({ name: name.trim() })
       const workout = workoutResponse?.data
 
       if (!workout?.id) {
@@ -133,13 +135,17 @@ export default function ExerciseLibrary() {
       setCreateMessage({ type: 'success', text: 'Workout Created Successfully' })
       clearCurrentWorkout()
       await refreshWorkouts()
-      window.setTimeout(() => navigate('/workouts'), 700)
+      setCreateModalOpen(false)
+      window.setTimeout(() => navigate('/workouts/' + workout.id), 700)
+      return workout
     } catch (err) {
       setCreateMessage({ type: 'error', text: getErrorMessage(err) })
+      return null
     } finally {
       setCreatingWorkout(false)
     }
   }
+
 
   const skeletons = useMemo(() => Array.from({ length: 8 }), [])
 
@@ -177,7 +183,7 @@ export default function ExerciseLibrary() {
 
               <button
                 type="button"
-                onClick={handleCreateWorkout}
+                onClick={() => setCreateModalOpen(true)}
                 disabled={creatingWorkout || currentWorkoutExercises.length === 0}
                 className="ember-button justify-center normal-case tracking-normal text-sm disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -251,6 +257,15 @@ export default function ExerciseLibrary() {
             </p>
           )}
         </div>
+      <CreateWorkoutModal
+        isOpen={createModalOpen}
+        loading={creatingWorkout}
+        error={createMessage?.type === 'error' ? createMessage.text : ''}
+        onClose={() => {
+          if (!creatingWorkout) setCreateModalOpen(false)
+        }}
+        onCreate={handleCreateWorkout}
+      />
     </main>
   )
 }

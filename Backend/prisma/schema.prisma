@@ -7,28 +7,43 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  name      String?
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  friendOf  Friend[]  @relation("FriendRelation")
-  friends   Friend[]  @relation("UserFriends")
-  workouts  Workout[]
+  id            String            @id @default(uuid())
+  name          String?
+  email         String            @unique
+  password      String
+  profileImage  String?
+  weight        Float?
+  height        Float?
+  dateOfBirth   DateTime?
+  gender        String?
+  profileCompleted Boolean @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  friendOf      Friend[]          @relation("FriendRelation")
+  friends       Friend[]          @relation("UserFriends")
+  clubsCreated  Club[]            @relation("ClubCreator")
+  clubMemberships ClubMember[]
+
+  workouts       Workout[]
+  workoutSessions WorkoutSession[]
+  galleryPhotos   GalleryPhoto[]
 }
 
 model Workout {
-  id        String     @id @default(uuid())
-  userId    String
-  name      String
-  date      DateTime   @default(now())
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  exercises Exercise[]
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String      @id @default(uuid())
+  userId      String
+  name        String
+  date        DateTime    @default(now())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  @@index([userId])
+  exercises   Exercise[]
+  sessions    WorkoutSession[]
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
 }
 
 model Exercise {
@@ -40,17 +55,139 @@ model Exercise {
   weight      Float
   muscleGroup String
   muscleName  String
-  workout     Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  workout      Workout           @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  sessionExercises SessionExercise[]
 
   @@index([workoutId])
 }
 
+model WorkoutSession {
+  id            String      @id @default(uuid())
+
+  userId        String
+  workoutId     String
+
+  startedAt     DateTime
+  completedAt   DateTime?
+  duration      Int?
+
+  status        WorkoutStatus @default(ACTIVE)
+
+  notes         String?
+
+  createdAt     DateTime @default(now())
+
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout       Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  exercises     SessionExercise[]
+  photos        WorkoutPhoto[]
+
+  @@index([userId])
+  @@index([workoutId])
+}
+
+model SessionExercise {
+  id            String @id @default(uuid())
+
+  sessionId     String
+  exerciseId    String
+
+  sets          Int
+  reps          Int
+  weight        Float
+
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  duration      Int?
+
+  session        WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exercise       Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model WorkoutPhoto {
+  id          String @id @default(uuid())
+
+  sessionId   String
+
+  imageUrl    String
+  caption     String?
+
+  uploadedAt  DateTime @default(now())
+
+  session WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model GalleryPhoto {
+  id          String @id @default(uuid())
+
+  userId      String
+
+  imageUrl    String
+  caption     String?
+
+  uploadedAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model Friend {
-  id       String @id @default(uuid())
-  userId   String
-  friendId String
-  friend   User   @relation("FriendRelation", fields: [friendId], references: [id])
-  user     User   @relation("UserFriends", fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  userId    String
+  friendId  String
+  createdAt DateTime @default(now())
+
+  friend   User @relation("FriendRelation", fields: [friendId], references: [id], onDelete: Cascade)
+  user     User @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
+}
+
+model Club {
+  id          String       @id @default(uuid())
+  name        String
+  nameKey     String       @unique
+  description String
+  createdById String
+  createdAt   DateTime     @default(now())
+
+  creator     User         @relation("ClubCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  members     ClubMember[]
+
+  @@index([createdById])
+}
+
+model ClubMember {
+  id       String   @id @default(uuid())
+  clubId   String
+  userId   String
+  role     ClubRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  club     Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, userId])
+  @@index([clubId])
+  @@index([userId])
+}
+
+enum WorkoutStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum ClubRole {
+  OWNER
+  MEMBER
 }

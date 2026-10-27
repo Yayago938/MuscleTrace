@@ -1,5 +1,6 @@
 const prisma=require("../utils/prisma");
  const createworkout= async(req,res)=>{
+  
     try{
         const workout=await prisma.workout.create({
             data:{
@@ -10,6 +11,7 @@ const prisma=require("../utils/prisma");
         )
          res.status(201).json(workout)
     }catch(err){
+      
         res.status(500).json({error:err.message})
     }
 }

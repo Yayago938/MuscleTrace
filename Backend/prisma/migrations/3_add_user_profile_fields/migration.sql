@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "User"
+  ADD COLUMN "weight" DOUBLE PRECISION,
+  ADD COLUMN "height" DOUBLE PRECISION,
+  ADD COLUMN "dateOfBirth" TIMESTAMP(3),
+  ADD COLUMN "gender" TEXT;

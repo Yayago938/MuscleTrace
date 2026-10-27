@@ -1,4 +1,4 @@
-import axios from 'axios'
+﻿import axios from 'axios'
 
 const BASE_URL = import.meta.env.VITE_API_URL
 
@@ -12,7 +12,7 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
-
+   console.log("REQUEST:", config.method?.toUpperCase(), config.baseURL + config.url)
   return config
 })
 

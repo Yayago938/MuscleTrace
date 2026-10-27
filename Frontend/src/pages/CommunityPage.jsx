@@ -1,9 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "../components/AppShell";
 import { activityFeed, leaderboardPeople } from "../data/siteData";
+import { addFriend, getFriends, removeFriend, searchUsers } from "../api/friendsService";
+import { createClub, getClubs, getMyClubs, joinClub, leaveClub } from "../api/clubsService";
 
 export function CommunityPage() {
   const [scope, setScope] = useState("Weekly");
+  const [friends, setFriends] = useState([]);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [clubs, setClubs] = useState([]);
+  const [clubQuery, setClubQuery] = useState("");
+  const [myClubs, setMyClubs] = useState([]);
+  const [clubForm, setClubForm] = useState({ name: "", description: "" });
+  const [message, setMessage] = useState("");
+
+  async function refresh() {
+    try {
+      const [friendResponse, clubResponse, mineResponse] = await Promise.all([getFriends(), getClubs(clubQuery), getMyClubs()]);
+      setFriends(friendResponse.data.items);
+      setClubs(clubResponse.data.items);
+      setMyClubs(mineResponse.data.items);
+    } catch {
+      setMessage("Unable to load community data. Please retry.");
+    }
+  }
+
+  useEffect(() => { refresh(); }, [clubQuery]);
+
+  if (true) return (
+    <AppShell eyebrow="Community" title="Friends & Clubs">
+      <div className="mx-auto grid max-w-6xl gap-6">
+        <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
+          <h3 className="font-headline text-3xl font-bold">Find friends</h3>
+          <label className="mt-4 block text-sm font-semibold" htmlFor="friend-search">Search by name</label>
+          <input className="mt-2 w-full rounded-xl bg-surface px-4 py-3 outline-none focus:ring-2 focus:ring-primary/30" id="friend-search" onChange={(event) => { const value = event.target.value; setQuery(value); if (value.trim().length < 2) return setResults([]); setTimeout(() => searchUsers(value).then(({ data }) => setResults(data.items)).catch(() => setMessage("Unable to search users.")), 300); }} placeholder="At least 2 characters" value={query} />
+          <div className="mt-4 space-y-3">{results.map((user) => <div className="flex items-center justify-between rounded-xl bg-surface p-4" key={user.id}><span className="font-semibold">{user.name || "Member"}</span><button className="ember-button py-2 text-xs" onClick={async () => { setFriends((items) => [user, ...items]); setResults((items) => items.filter((item) => item.id !== user.id)); try { await addFriend(user.id); } catch { setMessage("Unable to add friend."); refresh(); } }} type="button">Add</button></div>)}</div>
+        </section>
+        <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient"><h3 className="font-headline text-3xl font-bold">My friends</h3>{friends.length ? <div className="mt-4 grid gap-3 sm:grid-cols-2">{friends.map((friend) => <div className="flex items-center justify-between rounded-xl bg-surface p-4" key={friend.id}><span>{friend.name || "Member"}</span><button aria-label={`Remove ${friend.name || "friend"}`} className="font-semibold text-secondary" onClick={async () => { setFriends((items) => items.filter((item) => item.id !== friend.id)); try { await removeFriend(friend.id); } catch { setMessage("Unable to remove friend."); refresh(); } }} type="button">Remove</button></div>)}</div> : <p className="mt-4 text-sm text-on-surface-variant">No friends yet.</p>}</section>
+        <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient"><h3 className="font-headline text-3xl font-bold">Create a club</h3><form className="mt-4 grid gap-3 sm:grid-cols-3" onSubmit={async (event) => { event.preventDefault(); if (clubForm.name.trim().length < 2) return setMessage("Club names need at least 2 characters."); try { await createClub(clubForm); setClubForm({ name: "", description: "" }); refresh(); } catch (error) { setMessage(error?.response?.data?.error || "Unable to create club."); } }}><label className="sr-only" htmlFor="club-name">Club name</label><input className="rounded-xl bg-surface px-4 py-3 outline-none focus:ring-2 focus:ring-primary/30" id="club-name" maxLength="80" onChange={(event) => setClubForm((form) => ({ ...form, name: event.target.value }))} placeholder="Club name" value={clubForm.name} /><label className="sr-only" htmlFor="club-description">Description</label><input className="rounded-xl bg-surface px-4 py-3 outline-none focus:ring-2 focus:ring-primary/30" id="club-description" maxLength="500" onChange={(event) => setClubForm((form) => ({ ...form, description: event.target.value }))} placeholder="Description" value={clubForm.description} /><button className="ember-button justify-center" type="submit">Create</button></form></section>
+        <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient"><h3 className="font-headline text-3xl font-bold">Browse clubs</h3><label className="sr-only" htmlFor="club-search">Search clubs</label><input className="mt-4 w-full rounded-xl bg-surface px-4 py-3 outline-none focus:ring-2 focus:ring-primary/30" id="club-search" onChange={(event) => setClubQuery(event.target.value)} placeholder="Search clubs" value={clubQuery} /><div className="mt-4 grid gap-3 md:grid-cols-2">{clubs.map((club) => <article className="rounded-xl bg-surface p-4" key={club.id}><h4 className="font-bold">{club.name}</h4><p className="mt-1 text-sm text-on-surface-variant">{club.description || "No description."}</p><p className="mt-2 text-xs text-on-surface-variant">{club.memberCount} members</p><button className="mt-3 font-semibold text-primary" onClick={async () => { try { club.isMember ? await leaveClub(club.id) : await joinClub(club.id); refresh(); } catch (error) { setMessage(error?.response?.data?.error || "Unable to update membership."); } }} type="button">{club.isMember ? "Leave" : "Join"}</button></article>)}</div></section>
+        <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient"><h3 className="font-headline text-3xl font-bold">My clubs</h3>{myClubs.length ? <div className="mt-4 space-y-3">{myClubs.map((club) => <div className="flex items-center justify-between rounded-xl bg-surface p-4" key={club.id}><span>{club.name} · {club.role}</span><button className="font-semibold text-secondary" onClick={async () => { try { await leaveClub(club.id); refresh(); } catch (error) { setMessage(error?.response?.data?.error || "Unable to leave club."); } }} type="button">Leave</button></div>)}</div> : <p className="mt-4 text-sm text-on-surface-variant">No clubs joined yet.</p>}</section>
+        {message && <p className="rounded-xl bg-secondary/10 p-4 text-secondary" role="status">{message} <button className="font-bold underline" onClick={refresh} type="button">Retry</button></p>}
+      </div>
+    </AppShell>
+  );
 
   return (
     <AppShell
