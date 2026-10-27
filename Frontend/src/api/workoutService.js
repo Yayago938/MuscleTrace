@@ -26,3 +26,10 @@ export function getWorkoutById(id) {
 export function deleteWorkout(id) {
   return api.delete(`/workouts/${id}`)
 }
+export const startSession = (workoutId) => api.post('/workouts/sessions', { workoutId })
+export const getActiveSession = () => api.get('/workouts/sessions/active')
+export const getSession = (id) => api.get(`/workouts/sessions/${id}`)
+export const pauseSession = (id) => api.post(`/workouts/sessions/${id}/pause`)
+export const resumeSession = (id) => api.post(`/workouts/sessions/${id}/resume`)
+export const completeSession = (id) => api.post(`/workouts/sessions/${id}/complete`)
+export const updateSession = (id, exercises) => api.patch(`/workouts/sessions/${id}`, { exercises })

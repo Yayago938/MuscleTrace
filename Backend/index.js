@@ -13,6 +13,7 @@ const friendsRoutes=require('./routes/friendsroutes');
 const usersRoutes=require('./routes/usersroutes');
 const clubsRoutes=require('./routes/clubsroutes');
 const dashboardRoutes=require('./routes/dashboardroutes');
+const sessionRoutes=require('./routes/sessionroutes');
 
 app.use(express.json());
 app.use(
@@ -31,6 +32,7 @@ app.use('/api/friends', friendsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/clubs', clubsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/workouts/sessions', sessionRoutes);
 app.use("/workouts", workoutRoutes)
 app.use("/exercises", exerciseRoutes)
 app.use("/progress", progressRoutes) 

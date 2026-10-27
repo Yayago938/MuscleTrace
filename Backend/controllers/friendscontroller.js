@@ -71,6 +71,35 @@ async function getFriends(req, res) {
   }
 }
 
+async function getFriendProfile(req, res) {
+  const id = parseId(req.params.id);
+  if (!id.success) return res.status(400).json({ error: "Invalid friend ID" });
+
+  try {
+    const friend = await prisma.user.findUnique({ where: { id: id.data }, select: publicUser });
+    if (!friend) return res.status(404).json({ error: "User not found" });
+
+    const friendship = await prisma.friend.findUnique({
+      where: { userId_friendId: { userId: req.userId, friendId: id.data } },
+      select: { id: true },
+    });
+    if (!friendship) return res.status(403).json({ error: "You can only view profiles of your friends" });
+
+    const [totalWorkouts, recentWorkout] = await Promise.all([
+      prisma.workout.count({ where: { userId: id.data } }),
+      prisma.workout.findFirst({
+        where: { userId: id.data },
+        select: { id: true, name: true, date: true },
+        orderBy: [{ date: "desc" }, { id: "desc" }],
+      }),
+    ]);
+
+    res.json({ name: friend.name || "Friend", workoutSummary: { totalWorkouts, recentWorkout } });
+  } catch {
+    res.status(500).json({ error: "Failed to fetch friend profile" });
+  }
+}
+
 async function removeFriend(req, res) {
   const id = parseId(req.params.id);
   if (!id.success) return res.status(400).json({ error: "Invalid friend ID" });
@@ -85,4 +114,4 @@ async function removeFriend(req, res) {
   }
 }
 
-module.exports = { searchUsers, addFriend, getFriends, removeFriend };
+module.exports = { searchUsers, addFriend, getFriends, getFriendProfile, removeFriend };

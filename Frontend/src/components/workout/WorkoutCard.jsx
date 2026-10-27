@@ -6,6 +6,7 @@ import {
   getWorkoutDisplayName,
   useWorkouts,
 } from '../../context/WorkoutContext'
+import { startSession } from '../../api/workoutService'
 
 export default function WorkoutCard({ workout }) {
   const navigate = useNavigate()
@@ -13,6 +14,7 @@ export default function WorkoutCard({ workout }) {
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
+  const [starting, setStarting] = useState(false)
 
   const { id, date, createdAt, updatedAt, exercises = [] } = workout
   const name = getWorkoutDisplayName(workout)
@@ -31,6 +33,7 @@ export default function WorkoutCard({ workout }) {
       setConfirmingDelete(false)
     }
   }
+  async function handleStart(){setStarting(true);setError('');try{const {data}=await startSession(id);navigate('/workouts/active',{state:{sessionId:data.id}})}catch(err){setError(getApiErrorMessage(err,'Unable to start workout.'))}finally{setStarting(false)}}
 
   return (
     <div className="editorial-card overflow-hidden flex flex-col group">
@@ -120,10 +123,11 @@ export default function WorkoutCard({ workout }) {
 
             <button
               type="button"
-              onClick={() => navigate('/workouts/new', { state: { workoutId: id } })}
+              onClick={handleStart}
+              disabled={starting}
               className="ember-button ml-auto normal-case tracking-normal text-xs gap-1.5 py-2.5 px-4"
             >
-              Start
+              {starting ? 'Starting...' : 'Start'}
               <span className="material-symbols-outlined text-[14px]">play_arrow</span>
             </button>
           </div>

@@ -15,6 +15,9 @@ import { SignupPage } from "../pages/SignupPage";
 import { WorkoutPage } from "../pages/WorkoutPage";
 import { ProfileCompleteRoute, ProtectedRoute, PublicOnlyRoute } from "./ProtectedRoute";
 import { ProfileSetupPage } from "../pages/ProfileSetupPage";
+import { MyProfilePage } from "../pages/MyProfilePage";
+import { FriendProfilePage } from "../pages/FriendProfilePage";
+import { ActiveWorkoutPage } from "../pages/ActiveWorkoutPage";
 
 export default function AppRoutes() {
   return (
@@ -37,15 +40,15 @@ export default function AppRoutes() {
           <Route element={<ExerciseDetail />} path="/exercises/:exerciseId" />
           <Route element={<SavedWorkouts />} path="/workouts" />
           <Route element={<WorkoutPage />} path="/workouts/new" />
+          <Route element={<ActiveWorkoutPage />} path="/workouts/active" />
           <Route element={<EditWorkout />} path="/workouts/:workoutId" />
           <Route element={<AnalyticsPage />} path="/history" />
           <Route element={<AnalyticsPage />} path="/history/:historyId" />
           <Route element={<CommunityPage />} path="/friends" />
-          <Route element={<CommunityPage />} path="/friends/:userId" />
-          <Route element={<Dashboard />} path="/profile" />
-          <Route element={<Dashboard />} path="/profile/edit" />
+          <Route element={<FriendProfilePage />} path="/friends/:userId" />
+          <Route element={<MyProfilePage />} path="/profile" />
           <Route element={<Dashboard />} path="/notifications" />
-          <Route element={<Dashboard />} path="/settings" />
+          <Route element={<MyProfilePage />} path="/settings" />
           </Route>
         </Route>
       </Route>

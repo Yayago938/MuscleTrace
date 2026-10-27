@@ -1,0 +1,2 @@
+const router=require("express").Router(), auth=require("../middlewares/authmiddleware"), c=require("../controllers/sessioncontroller");
+router.post("/",auth,c.start); router.get("/active",auth,c.active); router.get("/:id",auth,c.details); router.patch("/:id",auth,c.update); router.post("/:id/pause",auth,c.pause); router.post("/:id/resume",auth,c.resume); router.post("/:id/complete",auth,c.complete); module.exports=router;

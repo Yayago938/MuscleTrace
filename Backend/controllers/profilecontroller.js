@@ -13,9 +13,10 @@ const profileSchema = z.object({
 });
 
 function serializeProfile(user) {
-  const { weight, height, dateOfBirth, gender, profileCompleted } = user;
+  const { name, weight, height, dateOfBirth, gender, profileCompleted } = user;
 
   return {
+    name: name || "Member",
     weight,
     height,
     dateOfBirth,
@@ -28,7 +29,7 @@ async function getProfile(req, res) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
-      select: { weight: true, height: true, dateOfBirth: true, gender: true, profileCompleted: true },
+      select: { name: true, weight: true, height: true, dateOfBirth: true, gender: true, profileCompleted: true },
     });
 
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -50,7 +51,7 @@ async function updateProfile(req, res) {
     const user = await prisma.user.update({
       where: { id: req.userId },
       data: { ...result.data, profileCompleted: true },
-      select: { weight: true, height: true, dateOfBirth: true, gender: true, profileCompleted: true },
+      select: { name: true, weight: true, height: true, dateOfBirth: true, gender: true, profileCompleted: true },
     });
 
     res.json(serializeProfile(user));

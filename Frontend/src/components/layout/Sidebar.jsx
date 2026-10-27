@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { label: 'Exercises', icon: 'explore', path: '/exercises' },
   { label: 'Workouts', icon: 'fitness_center', path: '/workouts' },
   { label: 'Friends', icon: 'group', path: '/friends' },
-  { label: 'Settings', icon: 'settings', path: '/settings' },
+  { label: 'My Profile', icon: 'person', path: '/profile' },
 ]
 
 export default function Sidebar() {
