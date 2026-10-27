@@ -26,6 +26,7 @@ export function PublicOnlyRoute() {
 
 export function ProfileCompleteRoute() {
   const [status, setStatus] = useState("loading");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -35,11 +36,11 @@ export function ProfileCompleteRoute() {
       .catch(() => active && setStatus("error"));
 
     return () => { active = false; };
-  }, []);
+  }, [retryKey]);
 
   if (status === "loading") return <main className="p-8 text-on-surface-variant">Loading profile...</main>;
   if (status === "incomplete") return <Navigate replace to="/profile-setup" />;
-  if (status === "error") return <main className="p-8 text-secondary">Unable to check your profile. Please refresh and try again.</main>;
+  if (status === "error") return <main className="p-8 text-secondary">Unable to check your profile. <button className="ml-2 font-semibold underline" onClick={() => { setStatus("loading"); setRetryKey((key) => key + 1); }} type="button">Retry</button></main>;
 
   return <Outlet />;
 }
